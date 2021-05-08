@@ -5,6 +5,7 @@
 #include "MAX17043.h"
 
 #define LED_PIN 11
+#define MOSFET_PIN 7
 #define SPEAKER_PIN 8
 
 int melody[] = {
@@ -44,13 +45,15 @@ void setup() {
   BLE.addService(beaconService);
   
   chirp.writeValue(doEcho);
-  clue.writeValue(1);
+  clue.writeValue(2);
 
   batteryPercent = FuelGauge.percent(); 
   battery.writeValue(String(batteryPercent).c_str());
 
   BLE.advertise();
 
+  digitalWrite(MOSFET_PIN, LOW);
+  
   for(int i = 0; i < 4; i++) {
     digitalWrite(LED_PIN, HIGH);
     delay(250);
@@ -76,6 +79,8 @@ void chirpCheck() {
   if(doEcho == 1)
   {
     digitalWrite(LED_PIN, HIGH);
+    digitalWrite(MOSFET_PIN, HIGH);
+    
     doEcho = 0;
     chirp.writeValue(doEcho);
 
@@ -86,15 +91,20 @@ void chirpCheck() {
       delay(pauseBetweenNotes);
       noTone(SPEAKER_PIN);
     }
+
+    digitalWrite(MOSFET_PIN, LOW);
     digitalWrite(LED_PIN, LOW);
   }
   if(doEcho == 2)
   {
     digitalWrite(LED_PIN, HIGH);
+    digitalWrite(MOSFET_PIN, HIGH);
+    
     doEcho = 0;
     chirp.writeValue(doEcho);
     tone(SPEAKER_PIN, melody[0], 1000);
     delay(1000);
+    digitalWrite(MOSFET_PIN, LOW);
     digitalWrite(LED_PIN, LOW);
   }
 }
